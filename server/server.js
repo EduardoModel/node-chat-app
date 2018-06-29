@@ -23,6 +23,19 @@ app.use(express.static(publicPath))
 io.on('connection', (socket) => {
 	console.log('Novo usuário conectado!')
 
+	socket.emit('newMessage', {
+		from: 'Admin',	//quando é o seridor que envia a mensagem!
+		text: 'Bem-Vindo ao Chat!',
+		createdAt: new Date().getTime()
+	})
+
+	socket.broadcast.emit('newMessage', {
+		from: 'Admin',
+		text: 'Um novo usuário juntou-se a conversa.',
+		createdAt: new Date().getTime()
+	})
+
+
 	socket.on('createMessage', (message) => {
 		console.log('Nova mensagem!', message)
 		io.emit('newMessage', {
@@ -30,6 +43,13 @@ io.on('connection', (socket) => {
 			text: message.text,
 			createdAt: new Date().getTime()
 		})
+
+		//envia a mensagem para todos, menos para quem gerou o evento
+		// socket.broadcast.emit('newMessage',  {
+		// 	from: message.from,
+		// 	text: message.text,
+		// 	createdAt: new Date().getTime()
+		// })
 	})
 
 	socket.on('disconnect', () => {
