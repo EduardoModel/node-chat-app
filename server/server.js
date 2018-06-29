@@ -3,6 +3,8 @@ const http = require('http')
 const express = require('express')
 const socketIO = require('socket.io')
 
+const {generateMessage} = require('./utils/message.js')
+
 //Esta forma de acessar o diretório public é ruim, pois tu acessa a pasta server, sai dela e entra na pasta public!
 // console.log(__dirname + '/../public')
 // console.log(publicPath)
@@ -23,26 +25,14 @@ app.use(express.static(publicPath))
 io.on('connection', (socket) => {
 	console.log('Novo usuário conectado!')
 
-	socket.emit('newMessage', {
-		from: 'Admin',	//quando é o seridor que envia a mensagem!
-		text: 'Bem-Vindo ao Chat!',
-		createdAt: new Date().getTime()
-	})
+	socket.emit('newMessage', generateMessage('Admin', 'Bem-Vindo ao Chat!'))
 
-	socket.broadcast.emit('newMessage', {
-		from: 'Admin',
-		text: 'Um novo usuário juntou-se a conversa.',
-		createdAt: new Date().getTime()
-	})
+	socket.broadcast.emit('newMessage', generateMessage('Admin', 'Um novo usuário juntou-se a conversa.'))
 
 
 	socket.on('createMessage', (message) => {
 		console.log('Nova mensagem!', message)
-		io.emit('newMessage', {
-			from: message.from,
-			text: message.text,
-			createdAt: new Date().getTime()
-		})
+		io.emit('newMessage', generateMessage(message.from, message.text))
 
 		//envia a mensagem para todos, menos para quem gerou o evento
 		// socket.broadcast.emit('newMessage',  {
