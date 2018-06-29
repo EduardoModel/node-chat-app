@@ -22,6 +22,17 @@ app.use(express.static(publicPath))
 //evento onde um usuário conecta ao servidor. Utiliza conexões persistentes entre os dois!
 io.on('connection', (socket) => {
 	console.log('Novo usuário conectado!')
+
+	socket.emit('newMessage', {
+		from: 'Yosif',
+		text: 'Let\'s invade Poland!',
+		createdAt: 123
+	})
+
+	socket.on('createMessage', (message) => {
+		console.log('Nova mensagem!', message)
+	})
+
 	socket.on('disconnect', () => {
 		console.log('Usuário desconectado!')
 	})
