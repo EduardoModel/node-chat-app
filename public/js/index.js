@@ -4,10 +4,10 @@ socket.on('connect', function() {
 	console.log('Conectado com o servidor!')
 
 	//o createdAt vai ser gerado no servidor!
-	socket.emit('createMessage', {
-		to: 'Adolf',
-		text: 'Yeahhhhh!',
-	})
+	// socket.emit('createMessage', {
+	// 	to: 'Adolf',
+	// 	text: 'Yeahhhhh!',
+	// })
 
 })
 
