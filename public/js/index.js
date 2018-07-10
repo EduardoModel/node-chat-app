@@ -44,11 +44,14 @@ socket.on('newLocationMessage', function(message) {
 
 jQuery('#message-form').on('submit', function(e) {
 	e.preventDefault()
+
+	let messageTextbox = jQuery('[name=message]')
+
 	socket.emit('createMessage', {
 		from: 'User',
-		text: jQuery('[name=message]').val() 
+		text: messageTextbox.val() 
 	}, function() {
-
+		messageTextbox.val('') //seta o valor, limpando o campo de texto
 	})
 })
 
@@ -58,12 +61,16 @@ locationButton.on('click', function() {
 		return alert('Geolocation não é suportado pelo seu navegador!')
 	}
 
+	locationButton.attr('disabled', 'disabled').text('Enviando posição...') //attr seta atributos e o text altera o nome do botão
+
 	navigator.geolocation.getCurrentPosition(function(position){
+		locationButton.removeAttr('disabled').text('Enviar posição') //reativa o botão e atualiza o texto
 		socket.emit('createLocationMessage', {
 			latitude: position.coords.latitude,
 			longitude: position.coords.longitude
 		})
 	}, function() {
+		locationButton.removeAttr('disabled').text('Enviar posição') //reativa o botão
 		alert('Não foi possível pegar a localização.')
 	})
 })

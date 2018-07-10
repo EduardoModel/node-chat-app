@@ -33,7 +33,7 @@ io.on('connection', (socket) => {
 	socket.on('createMessage', (message, callback) => {
 		console.log('Nova mensagem!', message)
 		io.emit('newMessage', generateMessage(message.from, message.text))
-		callback('Isso é do server');
+		callback();  //'Isso é do server'
 		//envia a mensagem para todos, menos para quem gerou o evento
 		// socket.broadcast.emit('newMessage',  {
 		// 	from: message.from,
