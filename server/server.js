@@ -3,7 +3,7 @@ const http = require('http')
 const express = require('express')
 const socketIO = require('socket.io')
 
-const {generateMessage} = require('./utils/message.js')
+const {generateMessage, generateLocationMessage} = require('./utils/message.js')
 
 //Esta forma de acessar o diretório public é ruim, pois tu acessa a pasta server, sai dela e entra na pasta public!
 // console.log(__dirname + '/../public')
@@ -41,6 +41,12 @@ io.on('connection', (socket) => {
 		// 	createdAt: new Date().getTime()
 		// })
 	})
+
+	socket.on('createLocationMessage', (coords) => {
+		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude))
+	})
+
+
 
 	socket.on('disconnect', () => {
 		console.log('Usuário desconectado!')
