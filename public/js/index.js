@@ -16,9 +16,10 @@ socket.on('disconnect', function() {
 })
 
 socket.on('newMessage', function(message) {
+	let formatedTime = moment(message.createdAt).format('h:mm a')
 	console.log('Nova Mensagem!', message)
 	let li = jQuery('<li></li>')
-	li.text(`${message.from}: ${message.text}`)
+	li.text(`${message.from} ${formatedTime}: ${message.text}`)
 
 	jQuery('#messages').append(li)
 })
@@ -32,11 +33,13 @@ socket.on('newMessage', function(message) {
 
 
 socket.on('newLocationMessage', function(message) {
+	let formatedTime = moment(message.createdAt).format('h:mm a')
+
 	let li = jQuery('<li></li>') //usando o texto desta forma evita que alguem injete código malicioso
 	let a = jQuery('<a target="_blank">Minha posição atual</a>')  //o _blank serve pra abrir uma nova aba antes de direcionar para o link 
 
 
-	li.text(`${message.from}: `)
+	li.text(`${message.from} ${formatedTime}: `)
 	a.attr('href', message.url) //busca um elemento dentro do a
 	li.append(a)
 	jQuery('#messages').append(li)
