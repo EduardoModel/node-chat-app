@@ -17,11 +17,21 @@ socket.on('disconnect', function() {
 
 socket.on('newMessage', function(message) {
 	let formatedTime = moment(message.createdAt).format('h:mm a')
-	console.log('Nova Mensagem!', message)
-	let li = jQuery('<li></li>')
-	li.text(`${message.from} ${formatedTime}: ${message.text}`)
+	let template = jQuery('#message-template').html()
+	//usa a biblioteca mustache pra injetar os valores de forma dinâmica
+	let html = Mustache.render(template, {
+		text: message.text,
+		from: message.from,
+		createdAt: formatedTime
+	})
+	jQuery('#messages').append(html)
 
-	jQuery('#messages').append(li)
+	// let formatedTime = moment(message.createdAt).format('h:mm a')
+	// console.log('Nova Mensagem!', message)
+	// let li = jQuery('<li></li>')
+	// li.text(`${message.from} ${formatedTime}: ${message.text}`)
+
+	// jQuery('#messages').append(li)
 })
 
 // socket.emit('createMessage', {
@@ -34,15 +44,22 @@ socket.on('newMessage', function(message) {
 
 socket.on('newLocationMessage', function(message) {
 	let formatedTime = moment(message.createdAt).format('h:mm a')
+	let template = jQuery('#location-message-template').html()
+	let html = Mustache.render(template, {
+		from: message.from,
+		createdAt: formatedTime,
+		url: message.url
+	})
+	jQuery('#messages').append(html)
 
-	let li = jQuery('<li></li>') //usando o texto desta forma evita que alguem injete código malicioso
-	let a = jQuery('<a target="_blank">Minha posição atual</a>')  //o _blank serve pra abrir uma nova aba antes de direcionar para o link 
+	// let li = jQuery('<li></li>') //usando o texto desta forma evita que alguem injete código malicioso
+	// let a = jQuery('<a target="_blank">Minha posição atual</a>')  //o _blank serve pra abrir uma nova aba antes de direcionar para o link 
 
 
-	li.text(`${message.from} ${formatedTime}: `)
-	a.attr('href', message.url) //busca um elemento dentro do a
-	li.append(a)
-	jQuery('#messages').append(li)
+	// li.text(`${message.from} ${formatedTime}: `)
+	// a.attr('href', message.url) //busca um elemento dentro do a
+	// li.append(a)
+	// jQuery('#messages').append(li)
 })
 
 jQuery('#message-form').on('submit', function(e) {
