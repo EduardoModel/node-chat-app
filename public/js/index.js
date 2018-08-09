@@ -1,5 +1,23 @@
 let socket = io()
 //arrow functions só funcionam no chrome!
+
+function scrollToBottom() {
+	//Selectors
+	let messages = jQuery('#messages')
+	let newMessage = messages.children('li:last-child')
+	//Heights
+	let clientHeight = messages.prop('clientHeight')
+	let scrollTop = messages.prop('scrollTop')
+	let scrollHeight = messages.prop('scrollHeight')
+	let newMessageHeight = newMessage.innerHeight()
+	let lastMessageHeight = newMessage.prev().innerHeight()
+
+	if(clientHeight + scrollTop + newMessageHeight + lastMessageHeight >= scrollHeight){
+		messages.scrollTop(scrollHeight)
+	}
+
+}
+
 socket.on('connect', function() {
 	console.log('Conectado com o servidor!')
 
@@ -25,6 +43,7 @@ socket.on('newMessage', function(message) {
 		createdAt: formatedTime
 	})
 	jQuery('#messages').append(html)
+	scrollToBottom()
 
 	// let formatedTime = moment(message.createdAt).format('h:mm a')
 	// console.log('Nova Mensagem!', message)
@@ -51,6 +70,7 @@ socket.on('newLocationMessage', function(message) {
 		url: message.url
 	})
 	jQuery('#messages').append(html)
+	scrollToBottom()
 
 	// let li = jQuery('<li></li>') //usando o texto desta forma evita que alguem injete código malicioso
 	// let a = jQuery('<a target="_blank">Minha posição atual</a>')  //o _blank serve pra abrir uma nova aba antes de direcionar para o link 
