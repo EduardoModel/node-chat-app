@@ -54,8 +54,12 @@ io.on('connection', (socket) => {
 	})
 
 	socket.on('createMessage', (message, callback) => {
-		console.log('Nova mensagem!', message)
-		io.emit('newMessage', generateMessage(message.from, message.text))
+		let user = users.getUser(socket.id)
+
+		if(user && isRealString(message.text)){
+			io.to(user.room).emit('newMessage', generateMessage(user.name, message.text))
+		}
+		
 		callback();  //'Isso é do server'
 		//envia a mensagem para todos, menos para quem gerou o evento
 		// socket.broadcast.emit('newMessage',  {
@@ -66,7 +70,10 @@ io.on('connection', (socket) => {
 	})
 
 	socket.on('createLocationMessage', (coords) => {
-		io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude))
+		let user = users.getUser(socket.id)
+		if(user){
+			io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude))
+		}
 	})
 
 
