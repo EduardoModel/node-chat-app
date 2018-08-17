@@ -4,6 +4,8 @@ const express = require('express')
 const socketIO = require('socket.io')
 
 const {generateMessage, generateLocationMessage} = require('./utils/message.js')
+const {isRealString} = require('./utils/validation.js')
+const {Users} = require('./utils/users.js')
 
 //Esta forma de acessar o diretório public é ruim, pois tu acessa a pasta server, sai dela e entra na pasta public!
 // console.log(__dirname + '/../public')
@@ -18,6 +20,7 @@ let app = express()
 let server = http.createServer(app)
 //cria o web socket
 let io = socketIO(server)
+let users = new Users()
 
 app.use(express.static(publicPath))
 
@@ -25,10 +28,30 @@ app.use(express.static(publicPath))
 io.on('connection', (socket) => {
 	console.log('Novo usuário conectado!')
 
-	socket.emit('newMessage', generateMessage('Admin', 'Bem-Vindo ao Chat!'))
+	socket.on('join', (params, callback) => {
+		if(!isRealString(params.name) || !isRealString(params.room)){
+			return callback('Nome e nome de sala são obrigatórios!')
+		}
+		//cria uma sala particular
+		socket.join(params.room)
+		users.removeUser(socket.id)
+		users.addUser(socket.id, params.name, params.room)
 
-	socket.broadcast.emit('newMessage', generateMessage('Admin', 'Um novo usuário juntou-se a conversa.'))
+		//socket.leave(room) <-  sai da sala com o nome room
 
+		//io.emit -> io.to(room).emit
+		//socket.broadcast.emit -> socket.broadcast.to(room).emit
+		//socket.emit 
+
+		io.to(params.room).emit('updateUserList', users.getUserList(params.room))
+
+		socket.emit('newMessage', generateMessage('Admin', 'Bem-Vindo ao Chat!'))
+	
+		socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} entrou na sala.`))
+
+
+		callback()
+	})
 
 	socket.on('createMessage', (message, callback) => {
 		console.log('Nova mensagem!', message)
@@ -49,6 +72,12 @@ io.on('connection', (socket) => {
 
 
 	socket.on('disconnect', () => {
+	let user = users.removeUser(socket.id)
+
+	if(user){
+		io.to(user.room).emit('updateUserList', users.getUserList(user.room))
+		io.to(user.room).emit('newMessage', generateMessage('Admin', `${user.name} saiu.`))
+	}
 		console.log('Usuário desconectado!')
 	})
 })
